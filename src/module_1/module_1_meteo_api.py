@@ -15,13 +15,26 @@ validation_schema = {
                 "time": {
                     "type": "array",
                     "items": {"type": "string"},
-                },  # Añadido para cumplir con el esquema
-                "temperature_2m_mean": {"type": "array", "items": {"type": "number"}},
-                "precipitation_sum": {"type": "array", "items": {"type": "number"}},
-                "wind_speed_10m_max": {"type": "array", "items": {"type": "number"}},
+                    "minItems": 1, 
+                },  
+                "temperature_2m_mean": {
+                    "type": "array",
+                    "items": {"type": "number"},
+                    "minItems": 1,  
+                },
+                "precipitation_sum": {
+                    "type": "array",
+                    "items": {"type": "number"},
+                    "minItems": 1,  
+                },
+                "wind_speed_10m_max": {
+                    "type": "array",
+                    "items": {"type": "number"},
+                    "minItems": 1,
+                },
             },
             "required": [
-                "time",  # Añadido para cumplir con el esquema
+                "time",  
                 "temperature_2m_mean",
                 "precipitation_sum",
                 "wind_speed_10m_max",
@@ -29,6 +42,7 @@ validation_schema = {
         }
     },
 }
+
 
 
 # Función genérica para llamadas a APIs
@@ -94,7 +108,11 @@ def data_process(daily_data: Dict[str, Any]) -> pd.DataFrame:
 # Función para graficar los datos
 def data_plot(daily_data: Dict[str, Any], city_name: str, ax: plt.Axes) -> None:
     df = data_process(daily_data)  # Procesar datos para cada ciudad
-    df_monthly = df.resample("ME").mean()  # Agrupar por mes al final del mes
+    df_monthly = df.resample("ME").mean()  # Agrupar por mes 
+    # Asegúrate de que df_monthly no esté vacío
+    if df_monthly.empty:
+        print(f"No hay datos mensuales para graficar {city_name}.")
+        return
 
     df_monthly["Temperature (°C)"].plot(
         ax=ax, label="Temperature (°C)", color="red", linewidth=2, marker="o"
@@ -119,6 +137,7 @@ def data_plot(daily_data: Dict[str, Any], city_name: str, ax: plt.Axes) -> None:
     ax.legend(loc="upper left")
     ax2.legend(loc="upper right")
     ax.grid(True)
+
 
 
 COORDINATES: Dict[str, Dict[str, float]] = {
